@@ -1,0 +1,33 @@
+{
+    "name": "ultimate-apm/ultimate-php",
+    "description": "Monitoring Package",
+    "keywords": ["monitoring", "php", "ultimate"],
+    "license": "MIT",
+
+    "type": "library",
+authors": [{
+        "name": "Ingress Team",
+        "email": "info@ingressit.com"
+    }],
+"require": {
+        "php": ">=7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ultimate\\": "src/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ultimate\\Tests\\": "tests/"
+        }
+    }
+}

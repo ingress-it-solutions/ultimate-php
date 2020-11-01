@@ -5,11 +5,11 @@
     "license": "MIT",
 
     "type": "library",
-authors": [{
+    "authors": [{
         "name": "Ingress Team",
         "email": "info@ingressit.com"
     }],
-"require": {
+    "require": {
         "php": ">=7.2"
     },
     "autoload": {

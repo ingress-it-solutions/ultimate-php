@@ -30,4 +30,19 @@ trait HasContext
         $this->context = $context;
         return $this;
     }
+
+    /**
+     * Get context items.
+     *
+     * @param string|null $label
+     * @return mixed
+     */
+    public function getContext(?string $label = null)
+    {
+        if (is_string($label)) {
+            return $this->context[$label];
+        }
+
+        return $this->context;
+    }
 }

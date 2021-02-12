@@ -3,7 +3,8 @@
 
 namespace Ultimate;
 
-
+use Ultimate\Exceptions\UltimateException;
+use Ultimate\Models\Arrayable;
 use Ultimate\Transports\AsyncTransport;
 use Ultimate\Transports\TransportInterface;
 use Ultimate\Models\PerformanceModel;
@@ -55,6 +56,26 @@ class Ultimate
         register_shutdown_function(array($this, 'flush'));
     }
 
+
+    /**
+     * Set custom transport.
+     *
+     * @param TransportInterface|callable $transport
+     * @return $this
+     * @throws UltimateException
+     */
+    public function setTransport($resolver)
+    {
+        if (is_callable($resolver)) {
+            $this->transport = $resolver($this->configuration);
+        } elseif ($resolver instanceof TransportInterface) {
+            $this->transport = $resolver;
+        } else {
+            throw new UltimateException('Invalid transport resolver.');
+        }
+        return $this;
+    }
+
     /**
      * Create and start new Transaction.
      *
@@ -66,7 +87,7 @@ class Ultimate
     {
         $this->transaction = new Transaction($name);
         $this->transaction->start();
-        $this->transport->addEntry($this->transaction);
+        $this->addEntries($this->transaction);
         return $this->transaction;
     }
 
@@ -99,10 +120,10 @@ class Ultimate
      */
     public function startSegment($type, $label = null)
     {
-        $segment = new Segment($this->transaction, $type, $label);
+        $segment = new Segment($this->transaction, addslashes($type), $label);
         $segment->start();
 
-        $this->transport->addEntry($segment);
+        $this->addEntries($segment);
         return $segment;
     }
 
@@ -156,7 +177,7 @@ class Ultimate
         $error = (new Error($exception, $this->transaction))
             ->setHandled($handled);
 
-        $this->transport->addEntry($error);
+        $this->addEntries($error);
 
         $segment->addContext('Error', $error)->end();
 
@@ -167,6 +188,7 @@ class Ultimate
      * Add an entry to the queue.
      *
      * @param PerformanceModel[]|PerformanceModel $entries
+     * @param Arrayable[]|Arrayable $entries
      * @return Ultimate
      */
     public function addEntries($entries)

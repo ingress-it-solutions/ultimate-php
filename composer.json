@@ -4,7 +4,6 @@
     "keywords": ["monitoring", "php", "ultimate"],
     "license": "MIT",
 
-    "type": "library",
     "authors": [{
         "name": "Ingress Team",
         "email": "info@ingressit.com"

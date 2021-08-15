@@ -10,7 +10,7 @@ class Configuration
      *
      * @var string
      */
-    protected $url = 'https://ingest.ultimate.dev';
+    protected $url = 'https://www.palzin.app';
 
     /**
      * Authentication key.
@@ -44,7 +44,7 @@ class Configuration
     /**
      * @var string
      */
-    protected $version = '21.08.05';
+    protected $version = '21.08.15';
 
     /**
      * Transport options.

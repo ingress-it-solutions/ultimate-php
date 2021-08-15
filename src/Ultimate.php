@@ -247,7 +247,6 @@ class Ultimate
     /**
      * Add an entry to the queue.
      *
-     * @param PerformanceModel[]|PerformanceModel $entries
      * @param Arrayable[]|Arrayable $entries
      * @return Ultimate
      */

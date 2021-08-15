@@ -101,7 +101,7 @@ class Configuration
      */
     public function getUrl()
     {
-        return $this->url;
+        return $this->url . '/api/1/store';
     }
 
     /**

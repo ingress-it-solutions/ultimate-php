@@ -32,9 +32,28 @@ class Transaction extends PerformanceModel
         $this->host = new Host();
 
         if ($this->type === self::TYPE_REQUEST) {
-            $this->http = new Http;
+            $this->http = new Http();
         }
     }
+
+
+    /**
+     * Collect server status information.
+     */
+    public function sampleServerStatus(float $ratio)
+    {
+        if ($ratio > 0) {
+            $shouldSample = mt_rand(0, mt_getrandmax() - 1) / mt_getrandmax();
+
+            if ($shouldSample < $ratio) {
+                $this->host->withServerStatus();
+            }
+        }
+
+        return $this;
+    }
+
+
 
     /**
      * Attcach user information.

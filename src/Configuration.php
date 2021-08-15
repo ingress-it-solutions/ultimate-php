@@ -37,9 +37,14 @@ class Configuration
     protected $transport = 'async';
 
     /**
+     * @var bool
+     */
+    protected $serverSamplingRatio = 0;
+
+    /**
      * @var string
      */
-    protected $version = '21.2.12';
+    protected $version = '21.08.05';
 
     /**
      * Transport options.
@@ -56,7 +61,7 @@ class Configuration
      */
     public function __construct($ingestionKey = null)
     {
-        if(!is_null($ingestionKey)) {
+        if(!is_null($ingestionKey)  && !empty($ingestionKey)) {
             $this->setIngestionKey($ingestionKey);
         }
     }
@@ -145,6 +150,21 @@ class Configuration
         $this->maxItems = $maxItems;
         return $this;
     }
+
+    /**
+     * @param float|null $ratio
+     * @return $this|bool
+     */
+    public function serverSamplingRatio($ratio = null)
+    {
+        if (is_null($ratio)) {
+            return $this->serverSamplingRatio;
+        }
+
+        $this->serverSamplingRatio = $ratio;
+        return $this;
+    }
+
 
     /**
      * Transport options.

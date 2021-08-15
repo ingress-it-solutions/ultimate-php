@@ -2,6 +2,8 @@
 
 namespace Ultimate\Models;
 
+use Ultimate\Models\Partials\Host;
+
 
 class Segment extends PerformanceModel
 {
@@ -18,7 +20,9 @@ class Segment extends PerformanceModel
         $this->model = self::MODEL_NAME;
         $this->type = $type;
         $this->label = $label;
-        $this->transaction = $transaction->only(['hash', 'timestamp']);
+        $this->host = new Host();
+
+        $this->transaction = $transaction->only(['name', 'hash', 'timestamp']);
     }
 
     /**

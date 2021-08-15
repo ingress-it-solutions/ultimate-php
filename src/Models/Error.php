@@ -2,6 +2,7 @@
 
 namespace Ultimate\Models;
 
+use Ultimate\Models\Partials\Host;
 
 class Error extends Arrayable
 {
@@ -22,6 +23,8 @@ class Error extends Arrayable
     {
         $this->model = self::MODEL_NAME;
         $this->timestamp = microtime(true);
+
+        $this->host = new Host();
 
         $this->message = $throwable->getMessage()
             ? $throwable->getMessage()

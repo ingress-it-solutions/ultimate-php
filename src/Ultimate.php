@@ -12,6 +12,8 @@ use Ultimate\Models\Error;
 use Ultimate\Models\Segment;
 use Ultimate\Models\Transaction;
 use Ultimate\Transports\CurlTransport;
+use Ultimate\Models\Partials\Host;
+
 
 class Ultimate
 {
@@ -87,6 +89,13 @@ class Ultimate
     {
         $this->transaction = new Transaction($name);
         $this->transaction->start();
+
+        // Sampling server status if requested.
+        $this->transaction->sampleServerStatus(
+            $this->configuration->serverSamplingRatio()
+        );
+
+
         $this->addEntries($this->transaction);
         return $this->transaction;
     }
@@ -102,17 +111,68 @@ class Ultimate
     }
 
     /**
-     * Check if a transaction was started.
+     * Determine if an active transaction exists.
      *
      * @return bool
      */
-    public function isRecording(): bool
+    public function hasTransaction(): bool
     {
         return isset($this->transaction);
     }
 
     /**
-     * Add new span to the queue.
+     * Determine if the current cycle hasn't started its transaction yet.
+     *
+     * @return bool
+     */
+    public function needTransaction(): bool
+    {
+        return $this->isRecording() && !$this->hasTransaction();
+    }
+
+    /**
+     * Determine if a new segment can be added.
+     *
+     * @return bool
+     */
+    public function canAddSegments(): bool
+    {
+        return $this->isRecording() && $this->hasTransaction();
+    }
+
+
+    /**
+     * Check if the monitoring is enabled.
+     *
+     * @return bool
+     */
+    public function isRecording(): bool
+    {
+        return $this->configuration->isEnabled();
+    }
+
+    /**
+     * Enable Recording
+     * @return Ultimate
+     */
+    public function startRecording()
+    {
+        $this->configuration->setEnabled(true);
+        return $this;
+    }
+
+    /**
+     * stop recording
+     * @return Ultimate
+     */
+    public function stopRecording()
+    {
+        $this->configuration->setEnabled(false);
+        return $this;
+    }
+
+    /**
+     * Add new segment to the queue.
      *
      * @param string $type
      * @param null|string $label
@@ -168,7 +228,7 @@ class Ultimate
             throw new \InvalidArgumentException('$exception need to be an instance of Exception or Throwable.');
         }
 
-        if (!$this->isRecording()) {
+        if ($this->needTransaction()) {
             $this->startTransaction($exception->getMessage());
         }
 
@@ -207,9 +267,10 @@ class Ultimate
      */
     public function flush()
     {
-        if (!$this->configuration->isEnabled() || !$this->isRecording()) {
+        if (!$this->isRecording() || !$this->hasTransaction()) {
             return;
         }
+
 
         if (!$this->transaction->isEnded()) {
             $this->transaction->end();

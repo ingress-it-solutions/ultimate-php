@@ -54,29 +54,55 @@ class AsyncTransport extends AbstractApiTransport
      */
     public function sendChunk($data)
     {
-        $cmd = "{$this->curlPath} -X POST";
+        $curl = $this->buildCurlCommand($data);
 
-        foreach ($this->getApiHeaders() as $name => $value) {
-            $cmd .= " --header \"$name: $value\"";
-        }
+        // Determine if the payload is a file.
+        $isFile = function ($payload) {
+            return substr($payload, 0, 1) === '@';
+        };
 
-        $cmd .= " --data {$this->getPayload($data)} {$this->config->getUrl()} --max-time 5";
 
-        if ($this->proxy) {
-            $cmd .= " --proxy \"{$this->proxy}\"";
-        }
-
-        // Curl will run in the background
         if (OS::isWin()) {
-            $cmd = "start /B {$cmd} > NUL";
-            if (substr($data, 0, 1) === '@') {
+            $cmd = "start /B {$curl} > NUL";
+
+            if ($isFile($data)) {
                 $cmd .= ' & timeout 1 > NUL & del /f ' . str_replace('@', '', $data);
             }
         } else {
-            $cmd .= " > /dev/null 2>&1 &";
+            $cmd = "({$curl} > /dev/null 2>&1";
+
+            if ($isFile($data)) {
+                $cmd.= '; rm ' . str_replace('@', '', $data);
+            }
+
+            $cmd.= ')&';
         }
 
         proc_close(proc_open($cmd, [], $pipes));
+    }
+
+    /**
+     * Carl command is agnostic between Win and Unix.
+     *
+     * @param $data
+     * @return string
+     */
+    protected function buildCurlCommand($data): string
+    {
+        $curl = "{$this->curlPath} -X POST --ipv4  --max-time 5";
+
+        foreach ($this->getApiHeaders() as $name => $value) {
+            $curl .= " --header \"$name: $value\"";
+        }
+
+        //$curl .= " --data {$this->getPayload($data)} {$this->config->getUrl()}";
+        $curl .= " --data {$data} {$this->config->getUrl()}";
+
+        if ($this->proxy) {
+            $curl .= " --proxy \"{$this->proxy}\"";
+        }
+
+        return $curl;
     }
 
     /**
@@ -87,12 +113,12 @@ class AsyncTransport extends AbstractApiTransport
      * @param $string
      * @return mixed
      */
-    protected function getPayload($string)
-    {
-        return OS::isWin()
-            // https://stackoverflow.com/a/30224062/5161588
-            ? '"' . str_replace('"', '""', $string) . '"'
-            // http://stackoverflow.com/a/1250279/871861
-            : "'" . str_replace("'", "'\"'\"'", $string) . "'";
-    }
+//    protected function getPayload($string)
+//    {
+//        return OS::isWin()
+//            // https://stackoverflow.com/a/30224062/5161588
+//            ? '"' . str_replace('"', '""', $string) . '"'
+//            // http://stackoverflow.com/a/1250279/871861
+//            : "'" . str_replace("'", "'\"'\"'", $string) . "'";
+//    }
 }

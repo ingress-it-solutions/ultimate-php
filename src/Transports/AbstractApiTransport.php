@@ -151,11 +151,10 @@ abstract class AbstractApiTransport implements TransportInterface
 
         \file_put_contents($filepath, $data, LOCK_EX);
         $this->sendChunk('@'.$filepath);*/
-        $tmpfile = tmpfile();
+        $tmpfile = tempnam(sys_get_temp_dir(), 'inspector');
+        file_put_contents($tmpfile, $data, LOCK_EX);
+        $this->sendChunk('@'.$tmpfile);
 
-        fwrite($tmpfile, $data);
-
-        $this->sendChunk('@'.stream_get_meta_data($tmpfile)['uri']);
     }
 
     /**

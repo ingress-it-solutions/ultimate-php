@@ -39,6 +39,14 @@ class Ultimate
     protected $transaction;
 
     /**
+     * Runa callback before flushing data to the remote platform.
+     *
+     * @var callable
+     */
+    protected static $beforeCallback;
+    
+    
+    /**
      * Logger constructor.
      *
      * @param Configuration $configuration
@@ -190,18 +198,21 @@ class Ultimate
     /**
      * Monitor the execution of a code block.
      *
-     * @param $callback
+     * @param callback $callback
      * @param string $type
      * @param null|string $label
      * @param bool $throw
      * @return mixed|void
      * @throws \Throwable
      */
-    public function addSegment($callback, $type, $label = null, $throw = false)
+    public function addSegment(callback $callback,string $type, $label = null, $throw = false)
     {
-        $segment = $this->startSegment($type, $label);
+        if (!$this->hasTransaction()) {
+            return $callback();
+        }
 
         try {
+            $segment = $this->startSegment($type, $label);
             return $callback($segment);
         } catch (\Throwable $exception) {
             if ($throw === true) {
@@ -224,12 +235,10 @@ class Ultimate
      */
     public function reportException(\Throwable $exception, $handled = true)
     {
-        if (!$exception instanceof \Exception && !$exception instanceof \Throwable) {
-            throw new \InvalidArgumentException('$exception need to be an instance of Exception or Throwable.');
-        }
+        
 
         if ($this->needTransaction()) {
-            $this->startTransaction($exception->getMessage());
+            $this->startTransaction(get_class($exception));
         }
 
         $segment = $this->startSegment('exception', substr($exception->getMessage(), 0, 50));
@@ -260,6 +269,16 @@ class Ultimate
     }
 
     /**
+     * Define a callback to run before flush data to the remote platform.
+     *
+     * @param callable $callback
+     */
+    public static function beforeFlush(callable $callback)
+    {
+        static::$beforeCallback = $callback;
+    }
+    
+    /**
      * Flush data to the remote platform.
      *
      * @throws \Exception
@@ -275,6 +294,12 @@ class Ultimate
             $this->transaction->end();
         }
 
+        if (static::$beforeCallback) {
+            if (call_user_func(static::$beforeCallback, $this) === false) {
+                return;
+            }
+        }
+        
         $this->transport->flush();
         unset($this->transaction);
     }

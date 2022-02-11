@@ -55,8 +55,11 @@ class AsyncTransport extends AbstractApiTransport
     public function sendChunk($data)
     {
         $curl = $this->buildCurlCommand($data);
-
-        $cmd = "({$curl} > /dev/null 2>&1";
+        
+        if (OS::isWin()) {
+            $cmd = "start /B {$curl} > NUL";
+        } else {
+            $cmd = "({$curl} > /dev/null 2>&1";
 
             // Delete temporary file after data transfer
             if (substr($data, 0, 1) === '@') {

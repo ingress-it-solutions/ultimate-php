@@ -198,14 +198,14 @@ class Ultimate
     /**
      * Monitor the execution of a code block.
      *
-     * @param callback $callback
+     * @param callable $callback
      * @param string $type
      * @param null|string $label
      * @param bool $throw
      * @return mixed|void
      * @throws \Throwable
      */
-    public function addSegment(callback $callback,string $type, $label = null, $throw = false)
+    public function addSegment(callable $callback,string $type, $label = null, $throw = false)
     {
         if (!$this->hasTransaction()) {
             return $callback();

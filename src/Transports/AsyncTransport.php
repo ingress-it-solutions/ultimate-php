@@ -26,7 +26,7 @@ class AsyncTransport extends AbstractApiTransport
     public function __construct($configuration)
     {
         if (!function_exists('proc_open')) {
-            throw new UltimateException("PHP function 'proc_open' is not available, is it disabled for security reasons?");
+            throw new UltimateException("PHP function 'proc_open' is not available.");
         }
 
         parent::__construct($configuration);
@@ -56,26 +56,7 @@ class AsyncTransport extends AbstractApiTransport
     {
         $curl = $this->buildCurlCommand($data);
 
-        // Determine if the payload is a file.
-        $isFile = function ($payload) {
-            return substr($payload, 0, 1) === '@';
-        };
-
-
-        if (OS::isWin()) {
-            $cmd = "start /B {$curl} > NUL";
-
-            if ($isFile($data)) {
-                $cmd .= ' & timeout 1 > NUL & del /f ' . str_replace('@', '', $data);
-            }
-        } else {
-            $cmd = "({$curl} > /dev/null 2>&1";
-
-            if ($isFile($data)) {
-                $cmd.= '; rm ' . str_replace('@', '', $data);
-            }
-
-            $cmd.= ')&';
+        $cmd = "{$curl} > /dev/null 2>&1 &";
         }
 
         proc_close(proc_open($cmd, [], $pipes));

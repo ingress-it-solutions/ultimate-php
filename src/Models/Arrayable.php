@@ -20,7 +20,7 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      * @param array $keys
      * @return array
      */
-    public function only(array $keys)
+    public function only(array $keys): array
     {
         $arr = [];
         foreach ($keys as $key) {
@@ -89,54 +89,54 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
     /**
      * Assigns a value to the specified offset.
      *
-     * @param string $key The offset to assign the value to
+     * @param string $offset The offset to assign the value to
      * @param mixed $value The value to set
      * @abstracting ArrayAccess
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($offset, $value): void
     {
-        if (is_null($key)) {
+        if (is_null($offset)) {
             $this->data[] = $value;
         } else {
-            $this->data[$key] = $value;
+            $this->data[$offset] = $value;
         }
     }
 
     /**
      * Whether or not an offset exists.
      *
-     * @param string $key An offset to check for
+     * @param string $offset An offset to check for
      * @return boolean
      * @abstracting ArrayAccess
      */
-    public function offsetExists($key)
+    public function offsetExists($offset): bool
     {
-        return isset($this->data[$key]);
+        return isset($this->data[$offset]);
     }
 
     /**
      * Unsets an offset.
      *
-     * @param string $key The offset to unset
+     * @param string $offset The offset to unset
      * @abstracting ArrayAccess
      */
-    public function offsetUnset($key)
+    public function offsetUnset($offset): void
     {
-        if ($this->offsetExists($key)) {
-            unset($this->data[$key]);
+        if ($this->offsetExists($offset)) {
+            unset($this->data[$offset]);
         }
     }
 
     /**
      * Returns the value at specified offset.
      *
-     * @param string $key The offset to retrieve
+     * @param string $offset The offset to retrieve
      * @return mixed
      * @abstracting ArrayAccess
      */
-    public function offsetGet($key)
+    public function offsetGet($offset): mixed
     {
-        return $this->offsetExists($key) ? $this->data[$key] : null;
+        return $this->offsetExists($offset) ? $this->data[$offset] : null;
     }
 
     /**
@@ -158,11 +158,12 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      * which is a value of any type other than a resource.
      * @since 5.4
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array_filter($this->toArray(), function ($value) {
             // remove NULL, FALSE and Empty Strings and Arrays, but leave values of 0 (zero)
-            return is_array($value) ? !empty($value) : strlen($value);
+//            return is_array($value) ? !empty($value) : strlen($value);
+            return is_array($value) ? !empty($value) : strlen($value??'');
         });
     }
 
@@ -171,7 +172,7 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->data;
     }

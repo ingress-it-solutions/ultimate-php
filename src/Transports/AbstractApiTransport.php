@@ -6,6 +6,7 @@ namespace Ultimate\Transports;
 use Ultimate\Configuration;
 use Ultimate\Exceptions\UltimateException;
 use Ultimate\Models\Arrayable;
+use Ultimate\Models\Error;
 use Ultimate\OS;
 
 abstract class AbstractApiTransport implements TransportInterface
@@ -81,7 +82,8 @@ abstract class AbstractApiTransport implements TransportInterface
      */
     public function addEntry($item): TransportInterface
     {
-        if(count($this->queue) <= $this->config->getMaxItems()) {
+        // Force insert when dealing with errors.
+        if($item['model'] === Error::MODEL_NAME || count($this->queue) <= $this->config->getMaxItems()) {
             $this->queue[] = $item;
         }
         return $this;

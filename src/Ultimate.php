@@ -43,14 +43,9 @@ class Ultimate
      *
      * @var callable
      */
-<<<<<<< HEAD
-    protected static $beforeCallback;
-    
-    
-=======
+
     protected static $beforeCallbacks = [];
 
->>>>>>> 13e8644 (Fixed issues rel 22.02.25)
     /**
      * Logger constructor.
      *
@@ -215,10 +210,6 @@ class Ultimate
         if (!$this->hasTransaction()) {
             return $callback();
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> 13e8644 (Fixed issues rel 22.02.25)
 
         try {
             $segment = $this->startSegment($type, $label);
@@ -244,11 +235,7 @@ class Ultimate
      */
     public function reportException(\Throwable $exception, $handled = true)
     {
-<<<<<<< HEAD
-        
 
-=======
->>>>>>> 13e8644 (Fixed issues rel 22.02.25)
         if ($this->needTransaction()) {
             $this->startTransaction(get_class($exception));
         }
@@ -281,26 +268,16 @@ class Ultimate
     }
 
     /**
-<<<<<<< HEAD
-     * Define a callback to run before flush data to the remote platform.
-=======
+
      * Define a callback to run before flushing data to the remote platform.
->>>>>>> 13e8644 (Fixed issues rel 22.02.25)
      *
      * @param callable $callback
      */
     public static function beforeFlush(callable $callback)
     {
-<<<<<<< HEAD
-        static::$beforeCallback = $callback;
-    }
-    
-=======
         static::$beforeCallbacks[] = $callback;
     }
 
-
->>>>>>> 13e8644 (Fixed issues rel 22.02.25)
     /**
      * Flush data to the remote platform.
      *
@@ -317,21 +294,12 @@ class Ultimate
             $this->transaction->end();
         }
 
-<<<<<<< HEAD
-        if (static::$beforeCallback) {
-            if (call_user_func(static::$beforeCallback, $this) === false) {
-                return;
-            }
-        }
-        
-=======
         foreach (static::$beforeCallbacks as $callback) {
             if (call_user_func($callback, $this) === false) {
                 return;
             }
         }
 
->>>>>>> 13e8644 (Fixed issues rel 22.02.25)
         $this->transport->flush();
         unset($this->transaction);
     }

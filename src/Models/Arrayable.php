@@ -63,7 +63,7 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Whether or not an data exists by key
+     * Whether or not data exists by key
      *
      * @param string $key An data key to check for
      * @access public
@@ -93,7 +93,8 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      * @param mixed $value The value to set
      * @abstracting ArrayAccess
      */
-    public function offsetSet($offset, $value): void
+
+    public function offsetSet($offset, $value)
     {
         if (is_null($offset)) {
             $this->data[] = $value;
@@ -106,10 +107,10 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      * Whether or not an offset exists.
      *
      * @param string $offset An offset to check for
-     * @return boolean
+     * @param mixed $value The value to set
      * @abstracting ArrayAccess
      */
-    public function offsetExists($offset): bool
+    public function offsetExists($offset)
     {
         return isset($this->data[$offset]);
     }
@@ -120,7 +121,7 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      * @param string $offset The offset to unset
      * @abstracting ArrayAccess
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset($offset)
     {
         if ($this->offsetExists($offset)) {
             unset($this->data[$offset]);
@@ -134,7 +135,7 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      * @return mixed
      * @abstracting ArrayAccess
      */
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset)
     {
         return $this->offsetExists($offset) ? $this->data[$offset] : null;
     }
@@ -146,7 +147,7 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      */
     public function __toString()
     {
-        return json_encode($this->jsonSerialize());
+        return \json_encode($this->jsonSerialize());
     }
 
     /**
@@ -160,10 +161,8 @@ abstract class Arrayable implements \ArrayAccess, \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return array_filter($this->toArray(), function ($value) {
-            // remove NULL, FALSE and Empty Strings and Arrays, but leave values of 0 (zero)
-//            return is_array($value) ? !empty($value) : strlen($value);
-            return is_array($value) ? !empty($value) : strlen($value??'');
+        return \array_filter($this->toArray(), function ($value) {
+            return \is_array($value) ? !empty($value) : \strlen($value??'');
         });
     }
 

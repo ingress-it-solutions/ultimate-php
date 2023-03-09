@@ -37,14 +37,9 @@ class Configuration
     protected $transport = 'async';
 
     /**
-     * @var bool
-     */
-    protected $serverSamplingRatio = 0;
-
-    /**
      * @var string
      */
-    protected $version = '21.12.21';
+    protected $version = '23.03.08';
 
     /**
      * Transport options.
@@ -151,19 +146,6 @@ class Configuration
         return $this;
     }
 
-    /**
-     * @param float|null $ratio
-     * @return $this|bool
-     */
-    public function serverSamplingRatio($ratio = null)
-    {
-        if (is_null($ratio)) {
-            return $this->serverSamplingRatio;
-        }
-
-        $this->serverSamplingRatio = $ratio;
-        return $this;
-    }
 
 
     /**

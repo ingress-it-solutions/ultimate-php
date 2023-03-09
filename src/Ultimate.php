@@ -98,12 +98,6 @@ class Ultimate
         $this->transaction = new Transaction($name);
         $this->transaction->start();
 
-        // Sampling server status if requested.
-        $this->transaction->sampleServerStatus(
-            $this->configuration->serverSamplingRatio()
-        );
-
-
         $this->addEntries($this->transaction);
         return $this->transaction;
     }
@@ -113,7 +107,17 @@ class Ultimate
      *
      * @return null|Transaction
      */
-    public function currentTransaction()
+    public function currentTransaction(): ?Transaction
+    {
+        return $this->transaction;
+    }
+
+    /**
+     * Get current transaction instance.
+     *
+     * @return null|Transaction
+     */
+    public function transaction(): ?Transaction
     {
         return $this->transaction;
     }
@@ -296,6 +300,8 @@ class Ultimate
 
         foreach (static::$beforeCallbacks as $callback) {
             if (call_user_func($callback, $this) === false) {
+                $this->transport->resetQueue();
+                unset($this->transaction);
                 return;
             }
         }
